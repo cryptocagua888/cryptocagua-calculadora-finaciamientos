@@ -21,7 +21,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   const quoteText = `🚀 *COTIZACIÓN DE FINANCIAMIENTO CRYPTOCAGUA* 🚀
 ----------------------------------------
 📌 *Monto Total:* ${formatCurrency(result.totalAmount)}
-💵 *Inicial Seleccionada (${result.initialPercentage}%):* ${formatCurrency(result.initialAmount)}
+💵 *Inicial Seleccionada (${result.initialPercentage}% + ${result.initialFeePercentage}%):* ${formatCurrency(result.initialAmount)}
 💳 *Monto a Financiar:* ${formatCurrency(result.financedAmount)}
 ----------------------------------------
 📅 *Plazo:* ${result.calculatedMonths} Meses

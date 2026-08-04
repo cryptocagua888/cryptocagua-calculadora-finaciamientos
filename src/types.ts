@@ -6,6 +6,7 @@ export interface GainTierConfig {
   tier3Max: number; // default 5000
   tier3Rate: number; // default 14%
   tier4Rate: number; // default 10%
+  initialFeeRate?: number; // default 3%
 }
 
 export interface FinancingParams {
@@ -31,6 +32,9 @@ export interface PaymentScheduleItem {
 
 export interface FinancingResult {
   totalAmount: number;
+  baseInitialAmount: number;
+  initialFee: number;
+  initialFeePercentage: number;
   initialAmount: number;
   initialPercentage: number;
   financedAmount: number;

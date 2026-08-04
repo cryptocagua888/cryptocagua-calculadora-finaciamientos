@@ -8,6 +8,7 @@ export const DEFAULT_GAIN_TIERS: GainTierConfig = {
   tier3Max: 5000,
   tier3Rate: 14,
   tier4Rate: 10,
+  initialFeeRate: 3,
 };
 
 export function getGainRateForAmount(amount: number, config: GainTierConfig = DEFAULT_GAIN_TIERS): { rate: number; tierLabel: string } {
@@ -26,19 +27,25 @@ export function calculateFinancing(params: FinancingParams): FinancingResult {
   const { totalAmount, initialPercentage, termMonths, monthlyCapacity, calculationMode, tierConfig } = params;
   
   const activeTiers = tierConfig || DEFAULT_GAIN_TIERS;
-  const { rate: gainPercentage, tierLabel: appliedTierLabel } = getGainRateForAmount(totalAmount, activeTiers);
-  const gainRateDecimal = gainPercentage / 100;
 
   // Ensure initial percentage is strictly between 25% and 70%
   const clampedInitialPct = Math.min(Math.max(initialPercentage, 25), 70);
-  const initialAmount = totalAmount * (clampedInitialPct / 100);
-  const financedAmount = totalAmount - initialAmount;
+  const baseInitialAmount = totalAmount * (clampedInitialPct / 100);
+  const initialFeeRate = activeTiers.initialFeeRate ?? 3;
+  const initialFee = baseInitialAmount * (initialFeeRate / 100); // configurable fee on initial amount (default 3%)
+  const initialAmount = baseInitialAmount + initialFee; // Total initial payable
+
+  const financedAmount = totalAmount - baseInitialAmount;
+
+  // Tier interest rate evaluated on financed amount
+  const { rate: gainPercentage, tierLabel: appliedTierLabel } = getGainRateForAmount(financedAmount, activeTiers);
+  const gainRateDecimal = gainPercentage / 100;
 
   let months = termMonths;
   let monthlyPayment = 0;
 
-  // Monthly gain fee based on total amount
-  const monthlyInterestFee = totalAmount * gainRateDecimal;
+  // Monthly gain fee based on financed amount
+  const monthlyInterestFee = financedAmount * gainRateDecimal;
 
   if (calculationMode === 'capacity') {
     if (monthlyCapacity > monthlyInterestFee && financedAmount > 0) {
@@ -56,7 +63,7 @@ export function calculateFinancing(params: FinancingParams): FinancingResult {
   }
 
   const totalInterestAmount = monthlyInterestFee * months;
-  const totalToPayWithInterest = totalAmount + totalInterestAmount;
+  const totalToPayWithInterest = totalAmount + totalInterestAmount + initialFee;
 
   // Build Payment Schedule
   const schedule: PaymentScheduleItem[] = [];
@@ -96,6 +103,9 @@ export function calculateFinancing(params: FinancingParams): FinancingResult {
 
   return {
     totalAmount,
+    baseInitialAmount,
+    initialFee,
+    initialFeePercentage: initialFeeRate,
     initialAmount,
     initialPercentage: clampedInitialPct,
     financedAmount,

@@ -133,7 +133,29 @@ export const AdminModal: React.FC<AdminModalProps> = ({
             </div>
 
             <div className="space-y-3">
-              <p className="text-slate-300 font-semibold flex items-center gap-1.5">
+              {/* Initial Fee config */}
+              <div className="bg-amber-950/20 border border-amber-500/30 rounded-xl p-3.5 space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-amber-300">Recargo Aplicado a la Inicial (%)</span>
+                  <span className="text-xs font-mono font-bold text-amber-300 bg-slate-900 px-2 py-0.5 rounded border border-slate-700">
+                    {tempConfig.initialFeeRate ?? 3}%
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-400">Recargo %:</span>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="100"
+                    value={tempConfig.initialFeeRate ?? 3}
+                    onChange={(e) => setTempConfig({ ...tempConfig, initialFeeRate: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-white font-mono text-sm font-bold focus:outline-none focus:ring-1 focus:ring-amber-400"
+                  />
+                </div>
+              </div>
+
+              <p className="text-slate-300 font-semibold flex items-center gap-1.5 pt-1">
                 <Percent className="w-4 h-4 text-emerald-400" />
                 Tasas de Ganancia por Tramos de Monto:
               </p>

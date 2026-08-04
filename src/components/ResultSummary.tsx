@@ -115,14 +115,14 @@ export const ResultSummary: React.FC<ResultSummaryProps> = ({
             result.isVipInitial ? 'bg-amber-950/20 border-amber-500/40' : 'bg-slate-950/60 border-slate-800'
           }`}>
             <span className="text-[11px] font-medium text-slate-400 flex items-center justify-between">
-              <span>Inicial ({result.initialPercentage}%)</span>
+              <span>Inicial ({result.initialPercentage}% + {result.initialFeePercentage}%)</span>
               {result.isVipInitial && <Crown className="w-3 h-3 text-amber-400" />}
             </span>
             <span className="text-sm sm:text-base font-bold font-mono text-white block truncate">
               {formattedInitial}
             </span>
             <span className="text-[10px] text-slate-400 block font-mono">
-              ${result.initialAmount.toFixed(2)} USDT
+              ${result.baseInitialAmount.toFixed(2)} base + ${result.initialFee.toFixed(2)} ({result.initialFeePercentage}%)
             </span>
           </div>
 

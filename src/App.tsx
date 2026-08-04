@@ -28,8 +28,8 @@ export default function App() {
   // Compute live financing result
   const result = useMemo(() => calculateFinancing(params), [params]);
 
-  // Monthly interest fee in USDT
-  const monthlyInterestFee = result.totalAmount * (result.monthlyInterestPercentage / 100);
+  // Monthly interest fee in USDT (applied to financed amount)
+  const monthlyInterestFee = result.financedAmount * (result.monthlyInterestPercentage / 100);
 
   const handleParamChange = (updated: Partial<FinancingParams>) => {
     setParams((prev) => ({ ...prev, ...updated }));

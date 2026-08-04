@@ -18,7 +18,12 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
   const PRESET_INITIALS = [25, 30, 40, 50, 60, 70];
   const PRESET_MONTHS = [1, 2, 3, 6, 9, 12, 18, 24];
 
-  const { rate: currentGainPct, tierLabel } = getGainRateForAmount(params.totalAmount, params.tierConfig || DEFAULT_GAIN_TIERS);
+  const baseInitial = params.totalAmount * (params.initialPercentage / 100);
+  const financedAmount = params.totalAmount - baseInitial;
+  const initialFeeRate = params.tierConfig?.initialFeeRate ?? 3;
+  const initialWithFee = baseInitial * (1 + initialFeeRate / 100);
+
+  const { rate: currentGainPct, tierLabel } = getGainRateForAmount(financedAmount, params.tierConfig || DEFAULT_GAIN_TIERS);
 
   const handleInitialChange = (pct: number) => {
     const clamped = Math.min(Math.max(pct, 25), 70);
@@ -109,7 +114,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
                 {params.initialPercentage}%
               </span>
               <span className="text-xs font-mono text-slate-400 hidden sm:inline">
-                (${(params.totalAmount * (params.initialPercentage / 100)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+                (${initialWithFee.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} con {initialFeeRate}%)
               </span>
             </div>
           </div>
