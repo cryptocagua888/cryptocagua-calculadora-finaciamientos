@@ -1,0 +1,6 @@
+{
+  "name": "Calculadora de Financiamiento Cryptocagua",
+  "description": "Calculadora interactiva de financiamientos Cryptocagua con inicial entre 25% y 70%, cálculo de cuotas y estimación según capacidad de pago.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
