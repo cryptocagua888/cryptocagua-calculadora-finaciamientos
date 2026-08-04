@@ -37,11 +37,6 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
             Configura el monto, la inicial (25% a 70%) y el plazo según tu capacidad.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 whitespace-nowrap">
-            Ganancia: {currentGainPct}%/mes ({tierLabel})
-          </span>
-        </div>
       </div>
 
       <div className="space-y-6">

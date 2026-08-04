@@ -26,8 +26,6 @@ export const ExportModal: React.FC<ExportModalProps> = ({
 ----------------------------------------
 📅 *Plazo:* ${result.calculatedMonths} Meses
 🗓️ *Cuota Mensual:* ${formatCurrency(result.monthlyPayment)}
-💰 *Total en Cuotas:* ${formatCurrency(result.monthlyPayment * result.calculatedMonths)}
-🏁 *TOTAL GENERAL A PAGAR:* ${formatCurrency(result.totalAmount + result.totalInterestAmount)}
 ----------------------------------------
 ✨ *Generado con la Calculadora Oficial de Financiamientos Cryptocagua*`;
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { FinancingResult } from '../types';
 import { formatCurrency } from '../utils/calculator';
-import { CheckCircle2, AlertTriangle, TrendingUp, Calendar, ShieldCheck, Crown, Sparkles } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, Calendar, Crown, Sparkles } from 'lucide-react';
 
 interface ResultSummaryProps {
   result: FinancingResult;
@@ -17,7 +17,6 @@ export const ResultSummary: React.FC<ResultSummaryProps> = ({
   const formattedMonthly = formatCurrency(result.monthlyPayment);
   const formattedInitial = formatCurrency(result.initialAmount);
   const formattedFinanced = formatCurrency(result.financedAmount);
-  const formattedTotalOverall = formatCurrency(result.totalAmount + result.totalInterestAmount);
 
   return (
     <div className="bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-4 sm:p-6 shadow-2xl relative overflow-hidden backdrop-blur-md">
@@ -110,7 +109,7 @@ export const ResultSummary: React.FC<ResultSummaryProps> = ({
         </div>
 
         {/* Secondary KPI Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
           {/* Inicial */}
           <div className={`border rounded-xl p-3.5 space-y-1 ${
             result.isVipInitial ? 'bg-amber-950/20 border-amber-500/40' : 'bg-slate-950/60 border-slate-800'
@@ -135,41 +134,6 @@ export const ResultSummary: React.FC<ResultSummaryProps> = ({
             </span>
             <span className="text-[10px] text-slate-400 block font-mono">
               ${result.financedAmount.toFixed(2)} USDT
-            </span>
-          </div>
-
-          {/* Total en Cuotas */}
-          <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3.5 space-y-1">
-            <span className="text-[11px] font-medium text-slate-400 flex items-center justify-between">
-              <span>Total en Cuotas</span>
-              <TrendingUp className="w-3 h-3 text-emerald-400" />
-            </span>
-            <span className="text-sm sm:text-base font-bold font-mono text-emerald-300 block truncate">
-              {formatCurrency(result.monthlyPayment * result.calculatedMonths)}
-            </span>
-            <span className="text-[10px] text-slate-400 block font-mono">
-              ${(result.monthlyPayment * result.calculatedMonths).toFixed(2)} USDT ({result.calculatedMonths}m)
-            </span>
-          </div>
-
-          {/* Total a Pagar general */}
-          <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3.5 space-y-1">
-            <span className="text-[11px] font-medium text-slate-400 block">Total Final General</span>
-            <span className="text-sm sm:text-base font-bold font-mono text-white block truncate">
-              {formattedTotalOverall}
-            </span>
-            <span className="text-[10px] text-slate-400 block">
-              Inicial + Cuotas
-            </span>
-          </div>
-        </div>
-
-        {/* Info Banner */}
-        <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between text-xs text-slate-300">
-          <div className="flex items-center space-x-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span>
-              Tasa aplicada ({result.appliedTierLabel || 'Tramo'}): <strong>{result.monthlyInterestPercentage}% mensual</strong>. Plazos mayores a 6 meses e inicial de 25% catalogados como <strong>VIP</strong>.
             </span>
           </div>
         </div>
