@@ -14,9 +14,7 @@ export default function App() {
   const [params, setParams] = useState<FinancingParams>({
     totalAmount: 1000,
     initialPercentage: 30,
-    termMonths: 6,
-    monthlyCapacity: 200,
-    calculationMode: 'months',
+    termMonths: 3,
     currency: 'USDT',
     tierConfig: DEFAULT_GAIN_TIERS,
   });
@@ -27,9 +25,6 @@ export default function App() {
 
   // Compute live financing result
   const result = useMemo(() => calculateFinancing(params), [params]);
-
-  // Monthly interest fee in USDT (applied to financed amount)
-  const monthlyInterestFee = result.financedAmount * (result.monthlyInterestPercentage / 100);
 
   const handleParamChange = (updated: Partial<FinancingParams>) => {
     setParams((prev) => ({ ...prev, ...updated }));
@@ -43,11 +38,12 @@ export default function App() {
     const newSim: SavedSimulation = {
       id: Date.now().toString(),
       date: new Date().toLocaleDateString('es-VE'),
-      title: `${params.initialPercentage}% Inicial - ${result.calculatedMonths} Meses`,
+      title: `${params.initialPercentage}% Inicial - ${result.calculatedMonths} Mes${result.calculatedMonths > 1 ? 'es' : ''} (${result.calculatedWeeks} Semanas)`,
       totalAmount: result.totalAmount,
       initialPercentage: result.initialPercentage,
       termMonths: result.calculatedMonths,
-      monthlyPayment: result.monthlyPayment,
+      totalWeeks: result.calculatedWeeks,
+      weeklyPayment: result.weeklyPayment,
       financedAmount: result.financedAmount,
       totalToPay: result.totalAmount + result.totalInterestAmount,
     };
@@ -60,7 +56,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-emerald-500 selection:text-slate-950 flex flex-col">
+    <div className="min-h-screen bg-[#111113] text-white font-sans selection:bg-[#FFD700] selection:text-[#111113] flex flex-col">
       {/* Header */}
       <Header
         onOpenAdminModal={() => setIsAdminOpen(true)}
@@ -70,11 +66,11 @@ export default function App() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Intro Tagline */}
         <div className="text-center max-w-2xl mx-auto space-y-2">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Calculadora de Financiamiento <span className="text-emerald-400">Cryptocagua</span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold font-oswald uppercase tracking-tight text-[#FFD700]">
+            Cryptocagua Financiamientos
           </h2>
-          <p className="text-sm text-slate-400">
-            Simula tu financiamiento con inicial desde <strong>25% hasta 70%</strong> y cuotas mensuales adaptadas a tu capacidad de pago.
+          <p className="text-sm text-zinc-400 font-mono">
+            Financiamiento flexible de 1 a 3 meses (4, 8 o 12 semanas) • Inicial flexible 0% - 70%
           </p>
         </div>
 
@@ -85,7 +81,6 @@ export default function App() {
             <CalculatorForm
               params={params}
               onChange={handleParamChange}
-              monthlyInterestFee={monthlyInterestFee}
             />
           </div>
 
@@ -126,21 +121,20 @@ export default function App() {
       />
 
       {/* Footer */}
-      <footer className="bg-slate-900/90 border-t border-slate-800 py-6 mt-12 text-center text-xs text-slate-400">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <footer className="bg-[#1A1A1C] border-t border-[#333333] py-6 mt-12 text-center text-xs text-zinc-400">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3 font-mono">
           <div className="flex items-center space-x-2">
-            <Coins className="w-4 h-4 text-emerald-400" />
-            <span className="font-semibold text-slate-300">Cryptocagua Financing System</span>
+            <Coins className="w-4 h-4 text-[#FFD700]" />
+            <span className="font-oswald font-bold text-white uppercase">Cryptocagua Financing System</span>
             <span>•</span>
-            <span>Financiamiento Flexible</span>
+            <span>Plazo 1 a 3 Meses</span>
           </div>
 
-          <p className="text-slate-400 flex items-center gap-1">
-            <span>Simulador de Cuotas & Amortización</span>
+          <p className="text-zinc-500 flex items-center gap-1">
+            <span>Calculadora de Cuotas Semanales</span>
           </p>
         </div>
       </footer>
     </div>
   );
 }
-

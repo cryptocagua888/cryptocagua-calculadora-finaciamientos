@@ -1,14 +1,16 @@
 import { FinancingParams, FinancingResult, PaymentScheduleItem, GainTierConfig } from '../types';
 
 export const DEFAULT_GAIN_TIERS: GainTierConfig = {
-  tier1Max: 500,
-  tier1Rate: 20,
-  tier2Max: 1000,
-  tier2Rate: 17,
-  tier3Max: 5000,
-  tier3Rate: 14,
-  tier4Rate: 10,
-  initialFeeRate: 3,
+  tier1Max: 100,
+  tier1Rate: 25,
+  tier2Max: 500,
+  tier2Rate: 20,
+  tier3Max: 1000,
+  tier3Rate: 17,
+  tier4Max: 5000,
+  tier4Rate: 14,
+  tier5Rate: 10,
+  initialFeeRate: 0,
 };
 
 export function getGainRateForAmount(amount: number, config: GainTierConfig = DEFAULT_GAIN_TIERS): { rate: number; tierLabel: string } {
@@ -18,94 +20,93 @@ export function getGainRateForAmount(amount: number, config: GainTierConfig = DE
     return { rate: config.tier2Rate, tierLabel: `$${config.tier1Max + 1} - $${config.tier2Max}` };
   } else if (amount <= config.tier3Max) {
     return { rate: config.tier3Rate, tierLabel: `$${config.tier2Max + 1} - $${config.tier3Max}` };
+  } else if (amount <= config.tier4Max) {
+    return { rate: config.tier4Rate, tierLabel: `$${config.tier3Max + 1} - $${config.tier4Max}` };
   } else {
-    return { rate: config.tier4Rate, tierLabel: `>$${config.tier3Max}` };
+    return { rate: config.tier5Rate, tierLabel: `>$${config.tier4Max}` };
   }
 }
 
 export function calculateFinancing(params: FinancingParams): FinancingResult {
-  const { totalAmount, initialPercentage, termMonths, monthlyCapacity, calculationMode, tierConfig } = params;
+  const { totalAmount, initialPercentage, tierConfig } = params;
   
   const activeTiers = tierConfig || DEFAULT_GAIN_TIERS;
 
-  // Ensure initial percentage is strictly between 25% and 70%
-  const clampedInitialPct = Math.min(Math.max(initialPercentage, 25), 70);
+  // Allow initial percentage between 0% and 70%
+  const clampedInitialPct = Math.min(Math.max(initialPercentage, 0), 70);
   const baseInitialAmount = totalAmount * (clampedInitialPct / 100);
-  const initialFeeRate = activeTiers.initialFeeRate ?? 3;
-  const initialFee = baseInitialAmount * (initialFeeRate / 100); // configurable fee on initial amount (default 3%)
-  const initialAmount = baseInitialAmount + initialFee; // Total initial payable
+  const initialFee = 0; // No surcharge on initial payment
+  const initialAmount = baseInitialAmount; // Total initial payable equals base initial
 
   const financedAmount = totalAmount - baseInitialAmount;
 
-  // Tier interest rate evaluated on financed amount
-  const { rate: gainPercentage, tierLabel: appliedTierLabel } = getGainRateForAmount(financedAmount, activeTiers);
+  const isZeroInitial = clampedInitialPct === 0;
+
+  // Tier interest rate evaluated on total amount of equipment/product
+  // Rule: if initial percentage is 0%, interest rate is ALWAYS 25% regardless of total amount.
+  let gainPercentage: number;
+  let appliedTierLabel: string;
+
+  if (isZeroInitial) {
+    gainPercentage = activeTiers.tier1Rate;
+    appliedTierLabel = '0% Inicial (25%)';
+  } else {
+    const tierInfo = getGainRateForAmount(totalAmount, activeTiers);
+    gainPercentage = tierInfo.rate;
+    appliedTierLabel = tierInfo.tierLabel;
+  }
   const gainRateDecimal = gainPercentage / 100;
 
-  let months = termMonths;
-  let monthlyPayment = 0;
+  // Dynamic financing term: 1, 2, or 3 months (4, 8, or 12 weeks)
+  const rawMonths = params.termMonths || 3;
+  const months = Math.min(Math.max(rawMonths, 1), 3);
+  const weeks = months * 4;
 
-  // Monthly gain fee based on financed amount
-  const monthlyInterestFee = financedAmount * gainRateDecimal;
+  // Monthly interest fee calculated on complete product total amount for chosen months
+  const monthlyInterestFee = totalAmount * gainRateDecimal;
+  const totalInterestAmount = monthlyInterestFee * months; // Total interest over selected months
+  const totalFinancedToPay = financedAmount + totalInterestAmount;
+  const weeklyPayment = weeks > 0 ? totalFinancedToPay / weeks : 0;
 
-  if (calculationMode === 'capacity') {
-    if (monthlyCapacity > monthlyInterestFee && financedAmount > 0) {
-      const rawMonths = financedAmount / (monthlyCapacity - monthlyInterestFee);
-      months = Math.max(1, Math.min(Math.ceil(rawMonths), 36));
-      monthlyPayment = monthlyCapacity;
-    } else {
-      months = termMonths || 6;
-      monthlyPayment = (financedAmount + (monthlyInterestFee * months)) / months;
-    }
-  } else {
-    months = Math.max(1, Math.min(termMonths, 36));
-    const totalInterest = monthlyInterestFee * months;
-    monthlyPayment = months > 0 ? (financedAmount + totalInterest) / months : 0;
-  }
+  const totalToPayWithInterest = totalAmount + totalInterestAmount;
 
-  const totalInterestAmount = monthlyInterestFee * months;
-  const totalToPayWithInterest = totalAmount + totalInterestAmount + initialFee;
-
-  // Build Payment Schedule
+  // Build Weekly Payment Schedule
   const schedule: PaymentScheduleItem[] = [];
-  let remainingBalance = financedAmount + totalInterestAmount;
+  let remainingBalance = totalFinancedToPay;
   const now = new Date();
 
-  const monthlyPrincipal = financedAmount / months;
-  const monthlyInterest = monthlyInterestFee;
+  const weeklyPrincipal = financedAmount / weeks;
+  const weeklyInterest = totalInterestAmount / weeks;
 
-  for (let i = 1; i <= months; i++) {
-    const paymentDate = new Date(now.getFullYear(), now.getMonth() + i, now.getDate());
+  for (let i = 1; i <= weeks; i++) {
+    const paymentDate = new Date(now.getTime() + i * 7 * 24 * 60 * 60 * 1000);
     const dateFormatted = paymentDate.toLocaleDateString('es-VE', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
     });
 
-    const isLastMonth = i === months;
-    const currentMonthlyPayment = isLastMonth ? remainingBalance : (monthlyPrincipal + monthlyInterest);
-    remainingBalance = Math.max(0, remainingBalance - currentMonthlyPayment);
+    const isLastWeek = i === weeks;
+    const currentWeeklyPayment = isLastWeek ? remainingBalance : weeklyPayment;
+    remainingBalance = Math.max(0, remainingBalance - currentWeeklyPayment);
 
     schedule.push({
-      month: i,
+      week: i,
       paymentDate: dateFormatted,
-      principalPayment: monthlyPrincipal,
-      interestPayment: monthlyInterest,
-      totalMonthlyPayment: currentMonthlyPayment,
+      principalPayment: weeklyPrincipal,
+      interestPayment: weeklyInterest,
+      totalWeeklyPayment: currentWeeklyPayment,
       remainingBalance: remainingBalance
     });
   }
 
-  const isWithinCapacity = monthlyCapacity <= 0 || monthlyPayment <= monthlyCapacity;
-  const capacityDifference = monthlyCapacity > 0 ? monthlyPayment - monthlyCapacity : 0;
-
-  const isVipTerm = months > 6;
   const isVipInitial = clampedInitialPct === 25;
 
   return {
     totalAmount,
     baseInitialAmount,
     initialFee,
-    initialFeePercentage: initialFeeRate,
+    initialFeePercentage: 0,
     initialAmount,
     initialPercentage: clampedInitialPct,
     financedAmount,
@@ -113,13 +114,12 @@ export function calculateFinancing(params: FinancingParams): FinancingResult {
     appliedTierLabel,
     totalInterestAmount,
     totalToPayWithInterest,
-    monthlyPayment,
+    weeklyPayment,
     calculatedMonths: months,
+    calculatedWeeks: weeks,
     schedule,
-    isWithinCapacity,
-    capacityDifference,
-    isVipTerm,
-    isVipInitial
+    isVipInitial,
+    isZeroInitial
   };
 }
 
