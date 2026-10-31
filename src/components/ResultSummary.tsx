@@ -106,7 +106,7 @@ export const ResultSummary: React.FC<ResultSummaryProps> = ({
             {formattedInitial}
           </span>
           <span className="text-xs text-zinc-400 block font-mono">
-            {result.initialPercentage === 0 ? 'Sin inicial requerido ($0 USDT)' : `$${result.initialAmount.toFixed(2)} USDT (${result.initialPercentage}% s/ total con recargo)`}
+            {result.initialPercentage === 0 ? 'Sin inicial requerido ($0 USDT)' : `$${result.initialAmount.toFixed(2)} USDT (${result.initialPercentage}% del precio base)`}
           </span>
         </div>
 

@@ -25,11 +25,11 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
   };
 
   const handleInitialAmountChange = (usdtVal: number) => {
-    if (totalWithInterest <= 0) {
+    if (params.totalAmount <= 0) {
       onChange({ initialPercentage: 0 });
       return;
     }
-    const pct = (usdtVal / totalWithInterest) * 100;
+    const pct = (usdtVal / params.totalAmount) * 100;
     const clamped = Math.min(Math.max(pct, 0), 70);
     onChange({ initialPercentage: clamped });
   };

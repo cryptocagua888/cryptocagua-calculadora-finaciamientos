@@ -56,18 +56,17 @@ export function calculateFinancing(params: FinancingParams): FinancingResult {
   const months = Math.min(Math.max(rawMonths, 1), 3);
   const weeks = months * 4;
 
-  // 1. Interest fee calculated on complete product total amount for chosen months
+  // 1. Initial payment calculated directly on base totalAmount (ZERO SURCHARGE ON INITIAL)
+  const baseInitialAmount = totalAmount * (clampedInitialPct / 100);
+  const initialFee = 0; // No surcharge on initial payment
+  const initialAmount = baseInitialAmount;
+
+  // 2. Interest fee calculated on complete product total amount for chosen months
   const monthlyInterestFee = totalAmount * gainRateDecimal;
   const totalInterestAmount = monthlyInterestFee * months; // Total interest over selected months
   
-  // 2. Total amount after adding interest
+  // 3. Total amount after adding interest
   const totalToPayWithInterest = totalAmount + totalInterestAmount;
-
-  // 3. Initial payment calculated AFTER adding interest to the total amount
-  // ("la inicial se calcula luego de agregar el porcentaje al monto")
-  const baseInitialAmount = totalToPayWithInterest * (clampedInitialPct / 100);
-  const initialFee = 0; // No surcharge on initial payment
-  const initialAmount = baseInitialAmount;
 
   // 4. Financed balance remaining to pay in weekly installments
   const financedAmount = totalToPayWithInterest - initialAmount;
