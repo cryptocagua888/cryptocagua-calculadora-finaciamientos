@@ -18,6 +18,15 @@ export const ExportModal: React.FC<ExportModalProps> = ({
 
   if (!isOpen) return null;
 
+  const scheduleText = result.schedule
+    ? result.schedule
+        .map(
+          (item) =>
+            `• Semana ${item.week} (${item.paymentDate}): ${formatCurrency(item.totalWeeklyPayment)}`
+        )
+        .join('\n')
+    : '';
+
   const quoteText = `🚀 *COTIZACIÓN DE FINANCIAMIENTO CRYPTOCAGUA* 🚀
 ----------------------------------------
 📌 *Monto Total:* ${formatCurrency(result.totalAmount)}
@@ -26,6 +35,9 @@ export const ExportModal: React.FC<ExportModalProps> = ({
 ----------------------------------------
 📅 *Plazo:* ${result.calculatedMonths} Meses (${result.calculatedWeeks} Semanas)
 🗓️ *Cuota Semanal:* ${formatCurrency(result.weeklyPayment)}
+----------------------------------------
+📋 *CRONOGRAMA DE CUOTAS SEMANALES:*
+${scheduleText}
 ----------------------------------------
 ✨ *Generado con la Calculadora Oficial de Financiamientos Cryptocagua*`;
 
@@ -69,8 +81,8 @@ export const ExportModal: React.FC<ExportModalProps> = ({
           <textarea
             readOnly
             value={quoteText}
-            rows={10}
-            className="w-full bg-[#000000] border border-[#333333] p-4 text-[#FFD700] font-mono text-xs leading-relaxed focus:outline-none resize-none"
+            rows={12}
+            className="w-full max-h-72 bg-[#000000] border border-[#333333] p-4 text-[#FFD700] font-mono text-xs leading-relaxed focus:outline-none resize-none overflow-y-auto"
           />
         </div>
 
