@@ -1,5 +1,6 @@
 import React from 'react';
 import { FinancingParams } from '../types';
+import { calculateFinancing } from '../utils/calculator';
 import { DollarSign, Percent, Calendar, Wallet, Check, Crown, Clock, Lock } from 'lucide-react';
 
 interface CalculatorFormProps {
@@ -14,7 +15,9 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
   const PRESET_AMOUNTS = [100, 200, 500, 1000, 2500, 5000];
   const PRESET_INITIALS = [0, 25, 30, 40, 50, 60, 70];
 
-  const baseInitial = params.totalAmount * (params.initialPercentage / 100);
+  const calcResult = calculateFinancing(params);
+  const totalWithInterest = calcResult.totalToPayWithInterest;
+  const baseInitial = calcResult.initialAmount;
 
   const handleInitialChange = (pct: number) => {
     const clamped = Math.min(Math.max(pct, 0), 70);
@@ -22,11 +25,11 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
   };
 
   const handleInitialAmountChange = (usdtVal: number) => {
-    if (params.totalAmount <= 0) {
+    if (totalWithInterest <= 0) {
       onChange({ initialPercentage: 0 });
       return;
     }
-    const pct = (usdtVal / params.totalAmount) * 100;
+    const pct = (usdtVal / totalWithInterest) * 100;
     const clamped = Math.min(Math.max(pct, 0), 70);
     onChange({ initialPercentage: clamped });
   };
@@ -205,7 +208,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
           <p className="text-xs text-zinc-400 mt-3 flex items-center justify-between font-mono">
             <span className="flex items-center gap-1">
               <Check className="w-3.5 h-3.5 text-[#FFD700] shrink-0" />
-              Restante a financiar: <strong className="text-white font-oswald text-sm">${(params.totalAmount * (1 - params.initialPercentage / 100)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT</strong>
+              Restante a financiar: <strong className="text-white font-oswald text-sm">${calcResult.financedAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT</strong>
             </span>
           </p>
         </div>

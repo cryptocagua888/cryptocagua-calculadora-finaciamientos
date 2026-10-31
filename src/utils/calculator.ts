@@ -34,12 +34,6 @@ export function calculateFinancing(params: FinancingParams): FinancingResult {
 
   // Allow initial percentage between 0% and 70%
   const clampedInitialPct = Math.min(Math.max(initialPercentage, 0), 70);
-  const baseInitialAmount = totalAmount * (clampedInitialPct / 100);
-  const initialFee = 0; // No surcharge on initial payment
-  const initialAmount = baseInitialAmount; // Total initial payable equals base initial
-
-  const financedAmount = totalAmount - baseInitialAmount;
-
   const isZeroInitial = clampedInitialPct === 0;
 
   // Tier interest rate evaluated on total amount of equipment/product
@@ -62,21 +56,30 @@ export function calculateFinancing(params: FinancingParams): FinancingResult {
   const months = Math.min(Math.max(rawMonths, 1), 3);
   const weeks = months * 4;
 
-  // Monthly interest fee calculated on complete product total amount for chosen months
+  // 1. Interest fee calculated on complete product total amount for chosen months
   const monthlyInterestFee = totalAmount * gainRateDecimal;
   const totalInterestAmount = monthlyInterestFee * months; // Total interest over selected months
-  const totalFinancedToPay = financedAmount + totalInterestAmount;
-  const weeklyPayment = weeks > 0 ? totalFinancedToPay / weeks : 0;
-
+  
+  // 2. Total amount after adding interest
   const totalToPayWithInterest = totalAmount + totalInterestAmount;
+
+  // 3. Initial payment calculated AFTER adding interest to the total amount
+  // ("la inicial se calcula luego de agregar el porcentaje al monto")
+  const baseInitialAmount = totalToPayWithInterest * (clampedInitialPct / 100);
+  const initialFee = 0; // No surcharge on initial payment
+  const initialAmount = baseInitialAmount;
+
+  // 4. Financed balance remaining to pay in weekly installments
+  const financedAmount = totalToPayWithInterest - initialAmount;
+  const weeklyPayment = weeks > 0 ? financedAmount / weeks : 0;
 
   // Build Weekly Payment Schedule
   const schedule: PaymentScheduleItem[] = [];
-  let remainingBalance = totalFinancedToPay;
+  let remainingBalance = financedAmount;
   const now = new Date();
 
-  const weeklyPrincipal = financedAmount / weeks;
-  const weeklyInterest = totalInterestAmount / weeks;
+  const weeklyPrincipal = (totalAmount * (1 - clampedInitialPct / 100)) / weeks;
+  const weeklyInterest = (totalInterestAmount * (1 - clampedInitialPct / 100)) / weeks;
 
   for (let i = 1; i <= weeks; i++) {
     const paymentDate = new Date(now.getTime() + i * 7 * 24 * 60 * 60 * 1000);

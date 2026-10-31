@@ -106,7 +106,7 @@ export const ResultSummary: React.FC<ResultSummaryProps> = ({
             {formattedInitial}
           </span>
           <span className="text-xs text-zinc-400 block font-mono">
-            {result.initialPercentage === 0 ? 'Sin inicial requerido ($0 USDT)' : `$${result.initialAmount.toFixed(2)} USDT (${result.initialPercentage}% del monto total)`}
+            {result.initialPercentage === 0 ? 'Sin inicial requerido ($0 USDT)' : `$${result.initialAmount.toFixed(2)} USDT (${result.initialPercentage}% s/ total con recargo)`}
           </span>
         </div>
 
@@ -119,7 +119,7 @@ export const ResultSummary: React.FC<ResultSummaryProps> = ({
             {formattedFinanced}
           </span>
           <span className="text-xs text-zinc-400 block font-mono">
-            ${result.financedAmount.toFixed(2)} USDT financiado ({result.monthlyInterestPercentage}% recargo/mes s/ financiado)
+            ${result.financedAmount.toFixed(2)} USDT financiado ({result.monthlyInterestPercentage}% recargo/mes s/ total)
           </span>
         </div>
       </div>
