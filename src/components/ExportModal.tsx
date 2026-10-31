@@ -39,7 +39,10 @@ export const ExportModal: React.FC<ExportModalProps> = ({
 📋 *CRONOGRAMA DE CUOTAS SEMANALES:*
 ${scheduleText}
 ----------------------------------------
-✨ *Generado con la Calculadora Oficial de Financiamientos Cryptocagua*`;
+✨ *Generado con la Calculadora Oficial de Financiamientos Cryptocagua*
+
+💡 ¡Calcula tu próximo financiamiento aquí! 👇
+🔗 https://cryptocagua-calculadora-finaciamien.vercel.app/`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(quoteText);
