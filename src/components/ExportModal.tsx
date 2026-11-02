@@ -28,7 +28,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     : '';
 
   const rateModeText = result.rateMode === 'USDT'
-    ? '🪙 Tasa USDT'
+    ? '🪙 USDT/$ Cash'
     : '💵 Dólares Tasa BCV';
 
   const quoteText = `🚀 *COTIZACIÓN DE FINANCIAMIENTO CRYPTOCAGUA* 🚀

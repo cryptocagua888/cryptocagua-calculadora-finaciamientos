@@ -86,7 +86,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
               }`}
             >
               <span className="text-sm font-extrabold flex items-center gap-1 text-[#FFD700]">
-                🪙 Tasa USDT
+                🪙 USDT/$ Cash
               </span>
               <span className={`text-[10px] font-mono ${params.rateMode === 'USDT' ? 'text-zinc-200' : 'text-zinc-400'}`}>
                 Tasa Preferencial

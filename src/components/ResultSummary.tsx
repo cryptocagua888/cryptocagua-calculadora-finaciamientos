@@ -30,7 +30,7 @@ export const ResultSummary: React.FC<ResultSummaryProps> = ({
 
             {result.rateMode === 'USDT' ? (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 font-oswald text-[10px] uppercase font-bold bg-[#FFD700] text-[#111113]">
-                <Tag className="w-3 h-3 text-[#111113]" /> TASA USDT
+                <Tag className="w-3 h-3 text-[#111113]" /> USDT/$ CASH
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 font-oswald text-[10px] uppercase font-bold bg-[#1A1A1C] text-zinc-300 border border-[#333333]">
@@ -132,7 +132,7 @@ export const ResultSummary: React.FC<ResultSummaryProps> = ({
             {formattedFinanced}
           </span>
           <span className="text-xs text-zinc-400 block font-mono">
-            ${result.financedAmount.toFixed(2)} USDT financiado ({result.monthlyInterestPercentage}% /mes {result.rateMode === 'USDT' ? 'Tasa USDT' : 'Tasa BCV'})
+            ${result.financedAmount.toFixed(2)} USDT financiado ({result.monthlyInterestPercentage}% /mes {result.rateMode === 'USDT' ? 'USDT/$ Cash' : 'Tasa BCV'})
           </span>
         </div>
       </div>
