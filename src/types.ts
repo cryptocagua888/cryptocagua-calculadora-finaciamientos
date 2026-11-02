@@ -1,3 +1,5 @@
+export type RateMode = 'BCV' | 'USDT';
+
 export interface GainTierConfig {
   tier1Max: number; // default 100 ($1 - $100)
   tier1Rate: number; // default 25%
@@ -15,6 +17,7 @@ export interface FinancingParams {
   totalAmount: number;
   initialPercentage: number; // 0 to 70
   termMonths?: number; // 1, 2, or 3 months
+  rateMode?: RateMode; // 'BCV' (Standard) or 'USDT' (-5% interest discount)
   currency: 'USDT';
   tierConfig?: GainTierConfig;
 }
@@ -36,7 +39,10 @@ export interface FinancingResult {
   initialAmount: number;
   initialPercentage: number;
   financedAmount: number;
-  monthlyInterestPercentage: number;
+  rateMode: RateMode;
+  discountPercentageApplied: number; // 0 for BCV, 5 for USDT
+  rawInterestPercentage: number; // base percentage before discount
+  monthlyInterestPercentage: number; // effective applied percentage
   appliedTierLabel: string;
   totalInterestAmount: number;
   totalToPayWithInterest: number;
@@ -59,4 +65,5 @@ export interface SavedSimulation {
   weeklyPayment: number;
   financedAmount: number;
   totalToPay: number;
+  rateMode?: RateMode;
 }

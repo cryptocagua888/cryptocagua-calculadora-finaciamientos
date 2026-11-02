@@ -28,7 +28,7 @@ export function getGainRateForAmount(amount: number, config: GainTierConfig = DE
 }
 
 export function calculateFinancing(params: FinancingParams): FinancingResult {
-  const { totalAmount, initialPercentage, tierConfig } = params;
+  const { totalAmount, initialPercentage, tierConfig, rateMode = 'BCV' } = params;
   
   const activeTiers = tierConfig || DEFAULT_GAIN_TIERS;
 
@@ -37,18 +37,27 @@ export function calculateFinancing(params: FinancingParams): FinancingResult {
   const isZeroInitial = clampedInitialPct === 0;
 
   // Tier interest rate evaluated on total amount of equipment/product
-  // Rule: if initial percentage is 0%, interest rate is ALWAYS 25% regardless of total amount.
-  let gainPercentage: number;
+  // Rule: if initial percentage is 0%, interest rate base is ALWAYS 25% regardless of total amount.
+  let rawGainPercentage: number;
   let appliedTierLabel: string;
 
   if (isZeroInitial) {
-    gainPercentage = activeTiers.tier1Rate;
+    rawGainPercentage = activeTiers.tier1Rate;
     appliedTierLabel = '0% Inicial (25%)';
   } else {
     const tierInfo = getGainRateForAmount(totalAmount, activeTiers);
-    gainPercentage = tierInfo.rate;
+    rawGainPercentage = tierInfo.rate;
     appliedTierLabel = tierInfo.tierLabel;
   }
+
+  // Rate mode discount: USDT mode grants a 7.5% discount on the gain/interest percentage
+  const discountPct = rateMode === 'USDT' ? 7.5 : 0;
+  const gainPercentage = Math.max(0, rawGainPercentage - discountPct);
+
+  if (rateMode === 'USDT') {
+    appliedTierLabel += ` [Tasa USDT = ${gainPercentage}%/mes]`;
+  }
+
   const gainRateDecimal = gainPercentage / 100;
 
   // Dynamic financing term: 1, 2, or 3 months (4, 8, or 12 weeks)
@@ -112,6 +121,9 @@ export function calculateFinancing(params: FinancingParams): FinancingResult {
     initialAmount,
     initialPercentage: clampedInitialPct,
     financedAmount,
+    rateMode,
+    discountPercentageApplied: discountPct,
+    rawInterestPercentage: rawGainPercentage,
     monthlyInterestPercentage: gainPercentage,
     appliedTierLabel,
     totalInterestAmount,

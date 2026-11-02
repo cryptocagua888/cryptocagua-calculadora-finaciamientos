@@ -1,7 +1,7 @@
 import React from 'react';
 import { FinancingResult } from '../types';
 import { formatCurrency } from '../utils/calculator';
-import { Calendar, Crown, Sparkles, Clock, Share2, PlusCircle } from 'lucide-react';
+import { Calendar, Crown, Sparkles, Clock, Share2, PlusCircle, Tag, RefreshCw } from 'lucide-react';
 
 interface ResultSummaryProps {
   result: FinancingResult;
@@ -27,6 +27,16 @@ export const ResultSummary: React.FC<ResultSummaryProps> = ({
             <span className="font-oswald text-xs uppercase tracking-widest text-[#FFD700] flex items-center gap-1">
               <Sparkles className="w-3.5 h-3.5 text-[#FFD700]" /> Cotización Oficial
             </span>
+
+            {result.rateMode === 'USDT' ? (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 font-oswald text-[10px] uppercase font-bold bg-[#FFD700] text-[#111113]">
+                <Tag className="w-3 h-3 text-[#111113]" /> TASA USDT
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 font-oswald text-[10px] uppercase font-bold bg-[#1A1A1C] text-zinc-300 border border-[#333333]">
+                <RefreshCw className="w-3 h-3 text-zinc-400" /> TASA BCV
+              </span>
+            )}
 
             <span className="inline-flex items-center gap-1 px-2 py-0.5 font-oswald text-[10px] uppercase font-bold bg-[#D32F2F] text-white">
               <Clock className="w-3 h-3" /> {result.calculatedMonths} MES{result.calculatedMonths > 1 ? 'ES' : ''} ({result.calculatedWeeks} SEMANAS)
@@ -112,14 +122,17 @@ export const ResultSummary: React.FC<ResultSummaryProps> = ({
 
         {/* Monto Financiado */}
         <div className="bg-[#000000] border border-[#333333] p-4 space-y-1">
-          <span className="font-oswald text-xs uppercase tracking-widest text-zinc-400 block">
-            Monto a Financiar
+          <span className="font-oswald text-xs uppercase tracking-widest text-zinc-400 flex items-center justify-between">
+            <span>Monto a Financiar</span>
+            {result.rateMode === 'USDT' && (
+              <span className="text-[10px] font-bold text-[#FFD700] uppercase font-oswald">TASA PREFERENCIAL</span>
+            )}
           </span>
           <span className="font-oswald text-2xl font-bold text-white block truncate">
             {formattedFinanced}
           </span>
           <span className="text-xs text-zinc-400 block font-mono">
-            ${result.financedAmount.toFixed(2)} USDT financiado ({result.monthlyInterestPercentage}% recargo/mes s/ total)
+            ${result.financedAmount.toFixed(2)} USDT financiado ({result.monthlyInterestPercentage}% /mes {result.rateMode === 'USDT' ? 'Tasa USDT' : 'Tasa BCV'})
           </span>
         </div>
       </div>

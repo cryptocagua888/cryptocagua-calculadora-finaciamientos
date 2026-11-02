@@ -1,7 +1,7 @@
 import React from 'react';
 import { FinancingParams } from '../types';
 import { calculateFinancing } from '../utils/calculator';
-import { DollarSign, Percent, Calendar, Wallet, Check, Crown, Clock, Lock } from 'lucide-react';
+import { DollarSign, Percent, Calendar, Wallet, Check, Crown, Clock, Lock, RefreshCw, Tag } from 'lucide-react';
 
 interface CalculatorFormProps {
   params: FinancingParams;
@@ -43,12 +43,57 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
             Parámetros del Financiamiento
           </h2>
           <p className="text-xs text-zinc-400 mt-1">
-            Configura el monto total y el porcentaje de inicial (0% a 70%).
+            Configura el tipo de tasa, monto total e inicial.
           </p>
         </div>
       </div>
 
       <div className="space-y-6">
+        {/* Interruptor de Tasa: Tasa BCV vs Tasa USDT */}
+        <div className="bg-[#000000] border border-[#333333] p-4 space-y-2">
+          <div className="flex items-center justify-between flex-wrap gap-1 mb-1">
+            <label className="font-oswald text-xs uppercase tracking-widest text-zinc-400 flex items-center gap-1.5">
+              <RefreshCw className="w-4 h-4 text-[#FFD700]" />
+              Tipo de Tasa Aplicada
+            </label>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => onChange({ rateMode: 'BCV' })}
+              className={`py-2.5 px-3 font-oswald text-xs font-bold uppercase border transition-all flex flex-col items-center justify-center gap-0.5 ${
+                (params.rateMode || 'BCV') === 'BCV'
+                  ? 'bg-[#FFD700] text-[#111113] border-[#FFD700] shadow-md'
+                  : 'bg-[#1A1A1C] text-zinc-300 border-[#333333] hover:border-[#FFD700] hover:text-[#FFD700]'
+              }`}
+            >
+              <span className="text-sm font-extrabold flex items-center gap-1">
+                💵 Dólares Tasa BCV
+              </span>
+              <span className={`text-[10px] font-mono ${(params.rateMode || 'BCV') === 'BCV' ? 'text-[#111113]' : 'text-zinc-400'}`}>
+                Porcentaje Estándar
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onChange({ rateMode: 'USDT' })}
+              className={`py-2.5 px-3 font-oswald text-xs font-bold uppercase border transition-all flex flex-col items-center justify-center gap-0.5 ${
+                params.rateMode === 'USDT'
+                  ? 'bg-[#D32F2F] text-white border-red-600 shadow-md ring-2 ring-[#FFD700]'
+                  : 'bg-[#1A1A1C] text-zinc-300 border-[#333333] hover:border-[#FFD700] hover:text-[#FFD700]'
+              }`}
+            >
+              <span className="text-sm font-extrabold flex items-center gap-1 text-[#FFD700]">
+                🪙 Tasa USDT
+              </span>
+              <span className={`text-[10px] font-mono ${params.rateMode === 'USDT' ? 'text-zinc-200' : 'text-zinc-400'}`}>
+                Tasa Preferencial
+              </span>
+            </button>
+          </div>
+        </div>
         {/* 1. Monto Total */}
         <div>
           <div className="flex justify-between items-center mb-1.5">

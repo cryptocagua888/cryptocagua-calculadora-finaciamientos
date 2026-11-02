@@ -35,10 +35,11 @@ export default function App() {
   };
 
   const handleSaveComparison = () => {
+    const rateTag = result.rateMode === 'USDT' ? ' [USDT]' : ' [BCV]';
     const newSim: SavedSimulation = {
       id: Date.now().toString(),
       date: new Date().toLocaleDateString('es-VE'),
-      title: `${params.initialPercentage}% Inicial - ${result.calculatedMonths} Mes${result.calculatedMonths > 1 ? 'es' : ''} (${result.calculatedWeeks} Semanas)`,
+      title: `${params.initialPercentage}% Inicial - ${result.calculatedMonths} M${rateTag}`,
       totalAmount: result.totalAmount,
       initialPercentage: result.initialPercentage,
       termMonths: result.calculatedMonths,
@@ -46,6 +47,7 @@ export default function App() {
       weeklyPayment: result.weeklyPayment,
       financedAmount: result.financedAmount,
       totalToPay: result.totalAmount + result.totalInterestAmount,
+      rateMode: result.rateMode,
     };
 
     setSavedSimulations((prev) => [newSim, ...prev.slice(0, 5)]);
